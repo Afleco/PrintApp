@@ -5,7 +5,7 @@ import AuthProvider from "../providers/AuthProvider";
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 
-import SplashScreenComponent from './components/SplashScreen';
+import SplashScreenComponent from '../components/SplashScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -39,8 +39,8 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="signin" options={{ headerShown: false }} />
-        <Stack.Screen name="signup" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/signin" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
       </Stack>
     </AuthProvider>
