@@ -1,22 +1,25 @@
 import LottieView from 'lottie-react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { theme } from '../styles/theme';
+import { useTheme } from '../providers/ThemeProvider';
 
 interface Props {
   onFinish: () => void;
 }
 
 export default function SplashScreenComponent({ onFinish }: Props) {
+  const { theme } = useTheme();
+
   return (
-    <View style={styles.container}>
+    // Aplicamos el color de fondo dinámico
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <LottieView
         source={require('../assets/animation.json')} 
         autoPlay
-        loop={false} // para que no se repita infinitamente
+        loop={false} 
         resizeMode="contain"
         style={styles.lottie}
-        onAnimationFinish={onFinish} // Avisa cuando termina
+        onAnimationFinish={onFinish}
       />
     </View>
   );
@@ -25,7 +28,7 @@ export default function SplashScreenComponent({ onFinish }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background, 
+    // backgroundColor se maneja inline
     justifyContent: 'center',
     alignItems: 'center',
   },

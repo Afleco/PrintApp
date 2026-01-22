@@ -13,9 +13,13 @@ import {
   View,
 } from 'react-native';
 import { supabase } from '../../lib/supabase';
-import { theme } from '../../styles/theme';
+// hook del proveedor
+import { useTheme } from '../../providers/ThemeProvider';
 
 export default function SignInScreen() {
+  // Obtenemos el tema actual
+  const { theme } = useTheme();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,30 +46,49 @@ export default function SignInScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      // arrays de estilos para inyectar el color dinámico
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <View style={styles.formContainer}>
         
-       
-        <View style={styles.logoContainer}>
+        <View style={[
+            styles.logoContainer, 
+            { 
+              backgroundColor: theme.colors.background, 
+              shadowColor: theme.colors.primary 
+            }
+          ]}>
           <Image 
             source={require('../../assets/images/printappicon.png')} 
             style={styles.logoImage}
-            contentFit="contain" // Nota: en expo-image es 'contentFit', no 'resizeMode'
-            transition={1000} // efecto suave de fundido si carga lento
+            contentFit="contain" 
+            transition={1000} 
             />
         </View>
         
-
-        <Text style={styles.headerText}>Iniciar sesión</Text>
-        <Text style={styles.subHeaderText}>Solicita y revisa tus pedidos de impresión</Text>
+        {/* Textos con color dinámico */}
+        <Text style={[styles.headerText, { color: theme.colors.primary }]}>
+          Iniciar sesión
+        </Text>
+        <Text style={[styles.subHeaderText, { color: theme.colors.textSecondary }]}>
+          Solicita y revisa tus pedidos de impresión
+        </Text>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email</Text>
+          <Text style={[styles.label, { color: theme.colors.textPrimary }]}>
+            Email
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input, 
+              { 
+                backgroundColor: theme.colors.inputBackground,
+                borderColor: theme.colors.inputBorder,
+                color: theme.colors.textPrimary 
+              }
+            ]}
             placeholder="ejemplo@correo.com"
-            placeholderTextColor={theme.colors.textSecondary}
+            placeholderTextColor={theme.colors.textSecondary} // Prop dinámico
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -74,9 +97,18 @@ export default function SignInScreen() {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Contraseña</Text>
+          <Text style={[styles.label, { color: theme.colors.textPrimary }]}>
+            Contraseña
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input, 
+              { 
+                backgroundColor: theme.colors.inputBackground,
+                borderColor: theme.colors.inputBorder,
+                color: theme.colors.textPrimary 
+              }
+            ]}
             placeholder="Ingresa tu contraseña"
             placeholderTextColor={theme.colors.textSecondary}
             value={password}
@@ -86,20 +118,23 @@ export default function SignInScreen() {
         </View>
 
         <TouchableOpacity
-          style={styles.loginButton}
+          style={[styles.loginButton, { backgroundColor: theme.colors.primary, shadowColor: theme.colors.secondary }]}
           onPress={handleSignIn}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color={theme.colors.textLight} />
           ) : (
-            <Text style={styles.loginButtonText}>Entrar</Text>
+            <Text style={[styles.loginButtonText, { color: theme.colors.textLight }]}>
+              Entrar
+            </Text>
           )}
         </TouchableOpacity>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>¿No tienes cuenta? </Text>
-          {/* Agregamos el onPress para navegar */}
+          <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
+            ¿No tienes cuenta?{' '}
+          </Text>
           <TouchableOpacity onPress={() => router.push('/signup')}>
             <Text style={[styles.footerText, { color: theme.colors.accent, fontWeight: 'bold' }]}>
             Regístrate aquí
@@ -111,103 +146,81 @@ export default function SignInScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    // backgroundColor: se maneja arriba
   },
   formContainer: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: theme.spacing.xl,
-    paddingTop: theme.spacing.xxl, 
+    paddingHorizontal: 32, 
+    paddingTop: 48, 
   },
-
   logoContainer: {
     alignSelf: 'center',
-    marginBottom: theme.spacing.l,
+    marginBottom: 24,
     width: 150,  
     height: 150,
-    backgroundColor: theme.colors.background, // Fondo blanco para que la sombra se vea bien
-    borderRadius: 35, // Bordes muy redondeados
-    
-    // Sombra para iOS
-    shadowColor: theme.colors.primary, 
-    shadowOffset: {
-      width: 0,
-      height: 8, // Sombra desplazada hacia abajo
-    },
-    shadowOpacity: 0.25, // Opacidad de la sombra
-    shadowRadius: 12, // Difuminado de la sombra
-    
-    // Elevación para Android
+    borderRadius: 35,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
     elevation: 15, 
   },
-  
   logoImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 35, // Siempre debe coincidir con el del contenedor
+    borderRadius: 35,
     overflow: 'hidden', 
   },
- 
   headerText: {
-    ...theme.textVariants.header,
+    fontSize: 28, 
+    fontWeight: 'bold',
     textAlign: 'center',
-    color: theme.colors.primary,
-    marginTop: theme.spacing.s, 
+    marginTop: 8, 
   },
   subHeaderText: {
-    ...theme.textVariants.subHeader,
+    fontSize: 16,
     textAlign: 'center',
-    marginBottom: theme.spacing.xxl,
+    marginBottom: 48,
   },
   inputGroup: {
-    marginBottom: theme.spacing.m,
+    marginBottom: 16,
   },
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.s,
+    marginBottom: 8,
   },
   input: {
-    backgroundColor: theme.colors.inputBackground,
     borderWidth: 1,
-    borderColor: theme.colors.inputBorder,
-    borderRadius: theme.borderRadius.m,
-    paddingHorizontal: theme.spacing.m,
-    paddingVertical: theme.spacing.m,
+    borderRadius: 8, 
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     fontSize: 16,
-    color: theme.colors.textPrimary,
   },
   loginButton: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.m,
-    paddingVertical: theme.spacing.m,
+    borderRadius: 8,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginTop: theme.spacing.m,
-    shadowColor: theme.colors.secondary,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    marginTop: 16,
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
   },
   loginButtonText: {
-    ...theme.textVariants.button,
+    fontSize: 16,
+    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.xl,
+    marginTop: 32,
+    paddingBottom: 32,
   },
   footerText: {
-    color: theme.colors.textSecondary,
     fontSize: 14,
   },
 });

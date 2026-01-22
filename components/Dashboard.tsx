@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { theme } from '../styles/theme';
+import { useTheme } from '../providers/ThemeProvider'; // Importamos el hook del tema
 
-// Definimos qué datos necesita este componente para funcionar
 interface DashboardProps {
   userProfile: {
     nombre: string;
@@ -13,44 +12,77 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
-  
-  // Función auxiliar para navegar
+  // Obtenemos el tema actual, la función para cambiarlo y el estado (para elegir el icono)
+  const { theme, toggleTheme, isDarkMode } = useTheme();
+
   const navigateTo = (screen: string) => {
     Alert.alert("Navegación", `Ir a pantalla: ${screen}`);
-    // router.push(screen)
+    // Ejemplo: router.push(screen);
   };
 
   const isClient = userProfile?.rol === 'Cliente';
   const isAdmin = userProfile?.rol === 'Administrador';
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView 
+      style={[styles.container, { backgroundColor: theme.colors.background }]} 
+      contentContainerStyle={styles.contentContainer}
+    >
       
-      {/* HEADER */}
+      {/* HEADER: Saludo y Botones Superiores */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.welcomeText}>Hola,</Text>
-          <Text style={styles.userName}>{userProfile?.nombre || 'Usuario'}</Text>
-          <Text style={styles.roleBadge}>{userProfile?.rol}</Text>
+          <Text style={[styles.welcomeText, { color: theme.colors.textSecondary }]}>Hola,</Text>
+          <Text style={[styles.userName, { color: theme.colors.textPrimary }]}>
+            {userProfile?.nombre || 'Usuario'}
+          </Text>
+          {/* Badge del Rol */}
+          <Text style={[styles.roleBadge, { color: theme.colors.primary, backgroundColor: isDarkMode ? 'rgba(0, 174, 239, 0.2)' : 'rgba(0, 59, 115, 0.1)' }]}>
+            {userProfile?.rol || 'Invitado'}
+          </Text>
         </View>
-        <TouchableOpacity onPress={onSignOut} style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={24} color={theme.colors.error} />
-        </TouchableOpacity>
+
+        <View style={styles.headerButtons}>
+            {/* Botón Toggle Modo Oscuro */}
+            <TouchableOpacity 
+              onPress={toggleTheme} 
+              style={[styles.iconButton, { backgroundColor: theme.colors.cardBackground }]}
+            >
+              <Ionicons 
+                name={isDarkMode ? "sunny" : "moon"} 
+                size={22} 
+                color={theme.colors.accent} 
+              />
+            </TouchableOpacity>
+
+            {/* Botón Logout */}
+            <TouchableOpacity 
+              onPress={onSignOut} 
+              style={[styles.iconButton, { backgroundColor: theme.colors.cardBackground }]}
+            >
+              <Ionicons name="log-out-outline" size={22} color={theme.colors.error} />
+            </TouchableOpacity>
+        </View>
       </View>
 
-      {/* INFORMACIÓN */}
-      <View style={styles.infoCard}>
+      {/* TARJETA DE INFORMACIÓN */}
+      <View style={[styles.infoCard, { backgroundColor: theme.colors.cardBackground }]}>
         <Ionicons name="information-circle" size={30} color={theme.colors.primary} style={{marginBottom: 10}}/>
-        <Text style={styles.infoTitle}>Bienvenido a PrintApp</Text>
-        <Text style={styles.infoText}>
+        <Text style={[styles.infoTitle, { color: theme.colors.textPrimary }]}>
+          Bienvenido a PrintApp
+        </Text>
+        <Text style={[styles.infoText, { color: theme.colors.textSecondary }]}>
           {isAdmin 
             ? 'Panel de gestión: Revisa y procesa los pedidos entrantes.' 
             : 'Sube tus documentos y recógelos cuando estén listos.'}
         </Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Panel de Control</Text>
+      <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>
+        Panel de Control
+      </Text>
 
+      {/* MENÚ DE ACCIONES */}
       <View style={styles.actionsContainer}>
         
         {/* --- OPCIONES DE ADMINISTRADOR --- */}
@@ -106,88 +138,99 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.backgroundSecondary,
   },
   contentContainer: {
-    padding: theme.spacing.l,
-    paddingTop: theme.spacing.xxl,
+    padding: 24,
+    paddingTop: 48,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: theme.spacing.xl,
+    marginBottom: 32,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 12, 
   },
   welcomeText: {
     fontSize: 16,
-    color: theme.colors.textSecondary,
   },
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: theme.colors.textPrimary,
   },
   roleBadge: {
     fontSize: 12,
-    color: theme.colors.primary,
-    backgroundColor: 'rgba(0, 59, 115, 0.1)',
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
-    marginTop: 4,
+    marginTop: 6,
     fontWeight: '600',
+    overflow: 'hidden',
   },
-  logoutButton: {
-    padding: theme.spacing.s,
-    backgroundColor: 'white',
-    borderRadius: theme.borderRadius.round,
+  iconButton: {
+    padding: 10,
+    borderRadius: 50, // Redondo
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 44,
+    height: 44,
   },
   infoCard: {
-    backgroundColor: 'white',
-    padding: theme.spacing.l,
-    borderRadius: theme.borderRadius.l,
-    marginBottom: theme.spacing.xl,
+    padding: 24,
+    borderRadius: 12,
+    marginBottom: 32,
     elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   infoTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: theme.colors.primary,
-    marginBottom: theme.spacing.s,
+    marginBottom: 8,
   },
   infoText: {
-    color: theme.colors.textSecondary,
     lineHeight: 20,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.m,
+    marginBottom: 16,
   },
   actionsContainer: {
-    gap: theme.spacing.m,
+    gap: 16,
   },
   actionCard: {
-    padding: theme.spacing.l,
-    borderRadius: theme.borderRadius.l,
+    padding: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
     minHeight: 120,
   },
   actionText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
-    marginTop: theme.spacing.s,
+    marginTop: 8,
   },
   actionTextLarge: {
     fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
-    marginTop: theme.spacing.s,
+    marginTop: 8,
   },
   actionSubtext: {
     fontSize: 14,
