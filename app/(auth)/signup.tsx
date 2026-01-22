@@ -2,21 +2,23 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { supabase } from '../../lib/supabase';
-import { theme } from '../../styles/theme';
+import { useTheme } from '../../providers/ThemeProvider';
 
 export default function SignUpScreen() {
+  const { theme } = useTheme();
+  
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -31,7 +33,6 @@ export default function SignUpScreen() {
 
     setLoading(true);
 
-    // Crear usuario en Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -43,17 +44,14 @@ export default function SignUpScreen() {
       return;
     }
 
-    // Si el registro de Auth salió bien, authData.user tendrá el ID
     if (authData?.user) {
-      // Insertar datos en la tabla pública 'Usuarios'
       const { error: dbError } = await supabase
         .from('Usuarios') 
         .insert({
           nombre: name,
           telefono: phone,
           email: email,
-          auth_id: authData.user.id, // Vinculamos con el ID de autenticación
-          // Nota: No enviamos 'id' (es autoincremental) ni 'rol' (asumimos que tiene un valor por defecto (Cliente) en la BD)
+          auth_id: authData.user.id,
         });
 
       setLoading(false);
@@ -69,12 +67,9 @@ export default function SignUpScreen() {
             { 
               text: 'OK', 
               onPress: () => {
-                // TODO: Revisar - Si Supabase tiene activada la confirmación por email, puede que no inicie sesión automáticamente.
-                // Si no requiere confirmación, el AuthProvider detectará la sesión y redirigirá.
                 if (!authData.session) {
-                    router.replace('/signin'); // Si requiere confirmar email
+                    router.replace('/signin');
                 }
-                // Si hay sesión, el AuthProvider en _layout hará el trabajo.
               } 
             }
           ]
@@ -86,30 +81,47 @@ export default function SignUpScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        
-        <View style={styles.logoContainer}>
+        <View style={[
+            styles.logoContainer,
+            { 
+              backgroundColor: theme.colors.background,
+              shadowColor: theme.colors.primary 
+            }
+          ]}>
             <Image 
                 source={require('../../assets/images/printappicon.png')} 
                 style={styles.logoImage}
-                contentFit="contain" // Nota: en expo-image es 'contentFit', no 'resizeMode'
-                transition={1000} // efecto suave de fundido si carga lento
+                contentFit="contain"
+                transition={1000}
             />
         </View>
 
-        <Text style={styles.headerText}>Crear Cuenta</Text>
-        <Text style={styles.subHeaderText}>Únete a PrintApp para imprimir fácil</Text>
+        <Text style={[styles.headerText, { color: theme.colors.primary }]}>
+            Crear Cuenta
+        </Text>
+        <Text style={[styles.subHeaderText, { color: theme.colors.textSecondary }]}>
+            Únete a PrintApp para imprimir fácil
+        </Text>
 
         <View style={styles.formContainer}>
           
-          {/* Campo: Nombre */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nombre Completo</Text>
+            <Text style={[styles.label, { color: theme.colors.textPrimary }]}>
+                Nombre Completo
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                   backgroundColor: theme.colors.inputBackground,
+                   borderColor: theme.colors.inputBorder,
+                   color: theme.colors.textPrimary
+                }
+              ]}
               placeholder="Tu nombre"
               placeholderTextColor={theme.colors.textSecondary}
               value={name}
@@ -117,11 +129,19 @@ export default function SignUpScreen() {
             />
           </View>
 
-          {/* Campo: Teléfono */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Teléfono</Text>
+            <Text style={[styles.label, { color: theme.colors.textPrimary }]}>
+                Teléfono
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                   backgroundColor: theme.colors.inputBackground,
+                   borderColor: theme.colors.inputBorder,
+                   color: theme.colors.textPrimary
+                }
+              ]}
               placeholder="Tu número de móvil"
               placeholderTextColor={theme.colors.textSecondary}
               value={phone}
@@ -130,11 +150,19 @@ export default function SignUpScreen() {
             />
           </View>
 
-          {/* Campo: Email */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={[styles.label, { color: theme.colors.textPrimary }]}>
+                Email
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                   backgroundColor: theme.colors.inputBackground,
+                   borderColor: theme.colors.inputBorder,
+                   color: theme.colors.textPrimary
+                }
+              ]}
               placeholder="ejemplo@correo.com"
               placeholderTextColor={theme.colors.textSecondary}
               value={email}
@@ -144,11 +172,19 @@ export default function SignUpScreen() {
             />
           </View>
 
-          {/* Campo: Contraseña */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Contraseña</Text>
+            <Text style={[styles.label, { color: theme.colors.textPrimary }]}>
+                Contraseña
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                   backgroundColor: theme.colors.inputBackground,
+                   borderColor: theme.colors.inputBorder,
+                   color: theme.colors.textPrimary
+                }
+              ]}
               placeholder="Crea una contraseña segura"
               placeholderTextColor={theme.colors.textSecondary}
               value={password}
@@ -157,22 +193,30 @@ export default function SignUpScreen() {
             />
           </View>
 
-          {/* Botón Registrarse */}
           <TouchableOpacity
-            style={styles.registerButton}
+            style={[
+                styles.registerButton, 
+                { 
+                    backgroundColor: theme.colors.accent,
+                    shadowColor: theme.colors.accent 
+                }
+            ]}
             onPress={handleSignUp}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color={theme.colors.textLight} />
             ) : (
-              <Text style={styles.registerButtonText}>Registrarme</Text>
+              <Text style={[styles.registerButtonText, { color: theme.colors.textLight }]}>
+                Registrarme
+              </Text>
             )}
           </TouchableOpacity>
 
-          {/* Volver al Login */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>¿Ya tienes cuenta? </Text>
+            <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
+                ¿Ya tienes cuenta?{' '}
+            </Text>
             <TouchableOpacity onPress={() => router.back()}>
               <Text style={[styles.footerText, { color: theme.colors.primary, fontWeight: 'bold' }]}>
                 Inicia sesión
@@ -188,23 +232,20 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: theme.spacing.xl,
-    paddingTop: theme.spacing.xxl,
-    paddingBottom: theme.spacing.xxl,
+    paddingHorizontal: 32,
+    paddingTop: 48,
+    paddingBottom: 48,
   },
   logoContainer: {
     alignSelf: 'center',
-    marginBottom: theme.spacing.l,
-    width: 100, // Un poco más pequeño que en login para dar espacio al formulario
+    marginBottom: 24,
+    width: 100, 
     height: 100,
-    backgroundColor: theme.colors.background,
     borderRadius: 25,
-    shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
@@ -217,60 +258,53 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   headerText: {
-    ...theme.textVariants.header,
+    fontSize: 28,
+    fontWeight: 'bold',
     textAlign: 'center',
-    color: theme.colors.primary,
   },
   subHeaderText: {
-    ...theme.textVariants.subHeader,
+    fontSize: 16,
     textAlign: 'center',
-    marginBottom: theme.spacing.l,
+    marginBottom: 24,
   },
   formContainer: {
     width: '100%',
   },
   inputGroup: {
-    marginBottom: theme.spacing.m,
+    marginBottom: 16,
   },
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.s,
+    marginBottom: 8,
   },
   input: {
-    backgroundColor: theme.colors.inputBackground,
     borderWidth: 1,
-    borderColor: theme.colors.inputBorder,
-    borderRadius: theme.borderRadius.m,
-    paddingHorizontal: theme.spacing.m,
-    paddingVertical: theme.spacing.m,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     fontSize: 16,
-    color: theme.colors.textPrimary,
   },
   registerButton: {
-    backgroundColor: theme.colors.accent, 
-    borderRadius: theme.borderRadius.m,
-    paddingVertical: theme.spacing.m,
+    borderRadius: 8,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginTop: theme.spacing.m,
-    shadowColor: theme.colors.accent,
+    marginTop: 16,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
   },
   registerButtonText: {
-    ...theme.textVariants.button,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: theme.spacing.xl,
+    marginTop: 32,
   },
   footerText: {
-    color: theme.colors.textSecondary,
     fontSize: 14,
   },
 });
