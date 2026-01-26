@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router'; // Usamos router directamente para navegar
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../providers/ThemeProvider'; // Importamos el hook del tema
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../providers/ThemeProvider';
 
 interface DashboardProps {
   userProfile: {
@@ -12,16 +13,21 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
-  // Obtenemos el tema actual, la función para cambiarlo y el estado (para elegir el icono)
   const { theme, toggleTheme, isDarkMode } = useTheme();
 
+  // Función para navegar usando Expo Router
   const navigateTo = (screen: string) => {
-    Alert.alert("Navegación", `Ir a pantalla: ${screen}`);
-    // Ejemplo: router.push(screen);
+    console.log("Intentando navegar a:", screen);
+    // @ts-ignore - Ignoramos check de tipos estricto para rutas dinámicas
+    router.push(screen);
   };
 
-  const isClient = userProfile?.rol === 'Cliente';
-  const isAdmin = userProfile?.rol === 'Administrador';
+  // Normalizamos el rol para evitar errores por mayúsculas/minúsculas
+  const userRole = userProfile?.rol || '';
+  // Asumimos que en tu enum de base de datos es 'Administrador' o 'Cliente'
+  // Ajusta esto si en tu BD es 'admin'/'cliente' en minúsculas.
+  const isClient = userRole === 'Cliente';
+  const isAdmin = userRole === 'Administrador';
 
   return (
     <ScrollView 
@@ -29,21 +35,19 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
       contentContainerStyle={styles.contentContainer}
     >
       
-      {/* HEADER: Saludo y Botones Superiores */}
+      {/* HEADER */}
       <View style={styles.header}>
         <View>
           <Text style={[styles.welcomeText, { color: theme.colors.textSecondary }]}>Hola,</Text>
           <Text style={[styles.userName, { color: theme.colors.textPrimary }]}>
             {userProfile?.nombre || 'Usuario'}
           </Text>
-          {/* Badge del Rol */}
           <Text style={[styles.roleBadge, { color: theme.colors.primary, backgroundColor: isDarkMode ? 'rgba(0, 174, 239, 0.2)' : 'rgba(0, 59, 115, 0.1)' }]}>
-            {userProfile?.rol || 'Invitado'}
+            {userRole || 'Invitado'}
           </Text>
         </View>
 
         <View style={styles.headerButtons}>
-            {/* Botón Toggle Modo Oscuro */}
             <TouchableOpacity 
               onPress={toggleTheme} 
               style={[styles.iconButton, { backgroundColor: theme.colors.cardBackground }]}
@@ -55,7 +59,6 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
               />
             </TouchableOpacity>
 
-            {/* Botón Logout */}
             <TouchableOpacity 
               onPress={onSignOut} 
               style={[styles.iconButton, { backgroundColor: theme.colors.cardBackground }]}
@@ -65,7 +68,7 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
         </View>
       </View>
 
-      {/* TARJETA DE INFORMACIÓN */}
+      {/* INFO CARD */}
       <View style={[styles.infoCard, { backgroundColor: theme.colors.cardBackground }]}>
         <Ionicons name="information-circle" size={30} color={theme.colors.primary} style={{marginBottom: 10}}/>
         <Text style={[styles.infoTitle, { color: theme.colors.textPrimary }]}>
@@ -82,15 +85,25 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
         Panel de Control
       </Text>
 
-      {/* MENÚ DE ACCIONES */}
+      {/* ACCIONES */}
       <View style={styles.actionsContainer}>
         
         {/* --- OPCIONES DE ADMINISTRADOR --- */}
         {isAdmin && (
           <>
+            {/* NUEVO BOTÓN: PEDIDOS EN ESPERA */}
+            <TouchableOpacity 
+              style={[styles.actionCard, { backgroundColor: theme.colors.accent }]}
+              onPress={() => navigateTo('/(admin)/pending')}
+            >
+              <Ionicons name="time" size={32} color="white" />
+              <Text style={styles.actionText}>Pedidos en Espera</Text>
+              <Text style={styles.actionSubtext}>Asignar nuevos pedidos</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity 
               style={[styles.actionCard, { backgroundColor: theme.colors.primary }]}
-              onPress={() => navigateTo('/admin/orders')}
+              onPress={() => navigateTo('/(admin)/assigned')}
             >
               <Ionicons name="clipboard" size={32} color="white" />
               <Text style={styles.actionText}>Pedidos Asignados</Text>
@@ -99,7 +112,7 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
 
             <TouchableOpacity 
               style={[styles.actionCard, { backgroundColor: theme.colors.secondary }]}
-              onPress={() => navigateTo('/admin/history')}
+              onPress={() => navigateTo('/(admin)/history')}
             >
               <Ionicons name="archive" size={32} color="white" />
               <Text style={styles.actionText}>Historial Global</Text>
@@ -136,30 +149,17 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 24,
-    paddingTop: 48,
-  },
+  container: { flex: 1 },
+  contentContainer: { padding: 24, paddingTop: 48 },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 32,
   },
-  headerButtons: {
-    flexDirection: 'row',
-    gap: 12, 
-  },
-  welcomeText: {
-    fontSize: 16,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
+  headerButtons: { flexDirection: 'row', gap: 12 },
+  welcomeText: { fontSize: 16 },
+  userName: { fontSize: 24, fontWeight: 'bold' },
   roleBadge: {
     fontSize: 12,
     alignSelf: 'flex-start',
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 10,
-    borderRadius: 50, // Redondo
+    borderRadius: 50,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -193,22 +193,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  infoText: {
-    lineHeight: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  actionsContainer: {
-    gap: 16,
-  },
+  infoTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
+  infoText: { lineHeight: 20 },
+  sectionTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
+  actionsContainer: { gap: 16 },
   actionCard: {
     padding: 24,
     borderRadius: 12,
@@ -220,21 +208,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     minHeight: 120,
   },
-  actionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    marginTop: 8,
-  },
-  actionTextLarge: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: 'white',
-    marginTop: 8,
-  },
-  actionSubtext: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginTop: 4,
-  },
+  actionText: { fontSize: 18, fontWeight: 'bold', color: 'white', marginTop: 8 },
+  actionTextLarge: { fontSize: 22, fontWeight: 'bold', color: 'white', marginTop: 8 },
+  actionSubtext: { fontSize: 14, color: 'rgba(255, 255, 255, 0.9)', marginTop: 4 },
 });

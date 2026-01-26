@@ -11,7 +11,7 @@ export default function SplashScreenComponent({ onFinish }: Props) {
   const { theme } = useTheme();
 
   return (
-    // Aplicamos el color de fondo dinámico
+    // color de fondo dinámico
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <LottieView
         source={require('../assets/animation.json')} 

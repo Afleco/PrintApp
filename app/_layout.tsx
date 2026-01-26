@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import SplashScreenComponent from '../components/SplashScreen';
+import { AlertProvider } from "../providers/AlertProvider"; // <--- IMPORTAR
 import AuthProvider from "../providers/AuthProvider";
 import { ThemeProvider } from "../providers/ThemeProvider";
 
@@ -22,13 +23,13 @@ export default function RootLayout() {
         await SplashScreen.hideAsync();
       }
     }
-
     prepare();
   }, []);
 
   if (!appReady || !animationFinished) {
     return (
       <ThemeProvider>
+         {/* El splash screen no necesita alertas, pero sí tema */}
          <SplashScreenComponent onFinish={() => setAnimationFinished(true)} />
       </ThemeProvider>
     );
@@ -36,13 +37,15 @@ export default function RootLayout() {
   
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="signin" options={{ headerShown: false }} />
-          <Stack.Screen name="signup" options={{ headerShown: false }} />
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-        </Stack>
-      </AuthProvider>
+      <AlertProvider> 
+        <AuthProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="signin" options={{ headerShown: false }} />
+            <Stack.Screen name="signup" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+          </Stack>
+        </AuthProvider>
+      </AlertProvider>
     </ThemeProvider>
   );
 }
