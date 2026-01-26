@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,10 +13,12 @@ import {
   View,
 } from 'react-native';
 import { supabase } from '../../lib/supabase';
+import { useAlert } from '../../providers/AlertProvider';
 import { useTheme } from '../../providers/ThemeProvider';
 
 export default function SignUpScreen() {
   const { theme } = useTheme();
+  const { showAlert } = useAlert(); 
   
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -27,7 +28,7 @@ export default function SignUpScreen() {
 
   async function handleSignUp() {
     if (!email || !password || !name || !phone) {
-      Alert.alert('Error', 'Por favor completa todos los campos.');
+      showAlert('Error', 'Por favor completa todos los campos.');
       return;
     }
 
@@ -40,7 +41,7 @@ export default function SignUpScreen() {
 
     if (authError) {
       setLoading(false);
-      Alert.alert('Error de registro', authError.message);
+      showAlert('Error de registro', authError.message);
       return;
     }
 
@@ -58,9 +59,10 @@ export default function SignUpScreen() {
 
       if (dbError) {
         console.error(dbError);
-        Alert.alert('Error al guardar perfil', 'El usuario se creó pero hubo un error guardando los datos.');
+        showAlert('Error al guardar perfil', 'El usuario se creó pero hubo un error guardando los datos.');
       } else {
-        Alert.alert(
+        
+        showAlert(
           '¡Registro Exitoso!',
           'Tu cuenta ha sido creada correctamente.',
           [

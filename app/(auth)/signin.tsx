@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -13,12 +12,12 @@ import {
   View,
 } from 'react-native';
 import { supabase } from '../../lib/supabase';
-// hook del proveedor
+import { useAlert } from '../../providers/AlertProvider';
 import { useTheme } from '../../providers/ThemeProvider';
 
 export default function SignInScreen() {
-  // Obtenemos el tema actual
   const { theme } = useTheme();
+  const { showAlert } = useAlert(); // <--- USAR HOOK
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +25,8 @@ export default function SignInScreen() {
 
   async function handleSignIn() {
       if (!email || !password) {
-        Alert.alert('Error', 'Por favor ingresa tu email y contraseña.');
+        
+        showAlert('Error', 'Por favor ingresa tu email y contraseña.');
         return;
       }
   
@@ -39,14 +39,15 @@ export default function SignInScreen() {
       setLoading(false);
   
       if (error) {
-        Alert.alert('Error de inicio de sesión', error.message);
+       
+        showAlert('Error de inicio de sesión', error.message);
       }
+      // Si no hay error, el AuthProvider detectará la sesión y redirigirá automáticamente
   }
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      // arrays de estilos para inyectar el color dinámico
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <View style={styles.formContainer}>
@@ -66,7 +67,6 @@ export default function SignInScreen() {
             />
         </View>
         
-        {/* Textos con color dinámico */}
         <Text style={[styles.headerText, { color: theme.colors.primary }]}>
           Iniciar sesión
         </Text>
@@ -88,7 +88,7 @@ export default function SignInScreen() {
               }
             ]}
             placeholder="ejemplo@correo.com"
-            placeholderTextColor={theme.colors.textSecondary} // Prop dinámico
+            placeholderTextColor={theme.colors.textSecondary}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -149,13 +149,12 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: se maneja arriba
   },
   formContainer: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 32, 
-    paddingTop: 48, 
+    paddingHorizontal: 32,
+    paddingTop: 48,
   },
   logoContainer: {
     alignSelf: 'center',
@@ -175,7 +174,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden', 
   },
   headerText: {
-    fontSize: 28, 
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 8, 
@@ -195,7 +194,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderRadius: 8, 
+    borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 16,
