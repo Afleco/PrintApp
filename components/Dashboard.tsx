@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router'; // Usamos router directamente para navegar
+import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../providers/ThemeProvider';
@@ -22,10 +22,10 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
     router.push(screen);
   };
 
-  // Normalizamos el rol para evitar errores por mayúsculas/minúsculas
+  
   const userRole = userProfile?.rol || '';
-  // Asumimos que en tu enum de base de datos es 'Administrador' o 'Cliente'
-  // Ajusta esto si en tu BD es 'admin'/'cliente' en minúsculas.
+  
+
   const isClient = userRole === 'Cliente';
   const isAdmin = userRole === 'Administrador';
 
