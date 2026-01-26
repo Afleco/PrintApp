@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import SplashScreenComponent from '../components/SplashScreen';
-import { AlertProvider } from "../providers/AlertProvider"; // <--- IMPORTAR
+import { AlertProvider } from "../providers/AlertProvider";
 import AuthProvider from "../providers/AuthProvider";
 import { ThemeProvider } from "../providers/ThemeProvider";
 
@@ -29,7 +29,7 @@ export default function RootLayout() {
   if (!appReady || !animationFinished) {
     return (
       <ThemeProvider>
-         {/* El splash screen no necesita alertas, pero sí tema */}
+         
          <SplashScreenComponent onFinish={() => setAnimationFinished(true)} />
       </ThemeProvider>
     );
