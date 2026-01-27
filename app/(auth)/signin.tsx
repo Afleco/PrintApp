@@ -17,7 +17,7 @@ import { useTheme } from '../../providers/ThemeProvider';
 
 export default function SignInScreen() {
   const { theme } = useTheme();
-  const { showAlert } = useAlert(); // <--- USAR HOOK
+  const { showAlert } = useAlert(); // 
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
