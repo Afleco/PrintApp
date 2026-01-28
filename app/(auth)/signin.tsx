@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons'; // <--- Asegúrate de importar esto
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
