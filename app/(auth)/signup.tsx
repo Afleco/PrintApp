@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -18,18 +19,32 @@ import { useTheme } from '../../providers/ThemeProvider';
 
 export default function SignUpScreen() {
   const { theme } = useTheme();
-  const { showAlert } = useAlert(); 
+  const { showAlert } = useAlert();
   
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); 
   const [loading, setLoading] = useState(false);
 
   async function handleSignUp() {
-    if (!email || !password || !name || !phone) {
+    // Validar campos vacíos
+    if (!email || !password || !confirmPassword || !name || !phone) {
       showAlert('Error', 'Por favor completa todos los campos.');
       return;
+    }
+
+    // VALIDACIÓN DE CONTRASEÑAS
+    if (password !== confirmPassword) {
+        showAlert('Error', 'Las contraseñas no coinciden. Por favor verifícalas.');
+        return;
+    }
+
+    // Validación de longitud 
+    if (password.length < 6) {
+        showAlert('Contraseña débil', 'La contraseña debe tener al menos 6 caracteres.');
+        return;
     }
 
     setLoading(true);
@@ -61,7 +76,6 @@ export default function SignUpScreen() {
         console.error(dbError);
         showAlert('Error al guardar perfil', 'El usuario se creó pero hubo un error guardando los datos.');
       } else {
-        
         showAlert(
           '¡Registro Exitoso!',
           'Tu cuenta ha sido creada correctamente.',
@@ -195,6 +209,27 @@ export default function SignUpScreen() {
             />
           </View>
 
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: theme.colors.textPrimary }]}>
+                Confirmar Contraseña
+            </Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                   backgroundColor: theme.colors.inputBackground,
+                   borderColor: theme.colors.inputBorder,
+                   color: theme.colors.textPrimary
+                }
+              ]}
+              placeholder="Repite tu contraseña"
+              placeholderTextColor={theme.colors.textSecondary}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+            />
+          </View>
+
           <TouchableOpacity
             style={[
                 styles.registerButton, 
@@ -225,6 +260,14 @@ export default function SignUpScreen() {
               </Text>
             </TouchableOpacity>
           </View>
+
+          <View style={styles.copyright}>
+            <Ionicons name="logo-github" size={16} color={theme.colors.textSecondary} />
+            <Text style={[styles.copyrightText, { color: theme.colors.textSecondary }]}>
+                © {new Date().getFullYear()} Afleco
+            </Text>
+          </View>
+
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -309,4 +352,15 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
   },
+  copyright: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 30,
+    opacity: 0.6
+  },
+  copyrightText: {
+    fontSize: 12,
+    marginLeft: 6
+  }
 });
