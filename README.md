@@ -62,8 +62,8 @@ The app features role-based access control (RBAC), real-time status updates, fil
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/your-username/print-app.git](https://github.com/your-username/print-app.git)
-    cd print-app
+    git clone [https://github.com/afleco/printapp.git](https://github.com/afleco/printapp.git)
+    cd printapp
     ```
 
 2.  **Install dependencies**
