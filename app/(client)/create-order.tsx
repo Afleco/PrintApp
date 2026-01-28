@@ -28,7 +28,7 @@ export default function CreateOrderScreen() {
   
   const [selectedFile, setSelectedFile] = useState<any>(null);
 
-  // 1. Seleccionar documento
+  // Seleccionar documento
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -108,7 +108,7 @@ export default function CreateOrderScreen() {
       // Hay que obtenemor el archivo binario puro usando ArrayBuffer en lugar de Blob
       const response = await fetch(selectedFile.uri);
       const fileData = await response.arrayBuffer();
-      // ------------------------------------------
+      
 
       const fileExt = selectedFile.name.split('.').pop();
       const cleanFileName = selectedFile.name.replace(/[^a-zA-Z0-9.]/g, '_');

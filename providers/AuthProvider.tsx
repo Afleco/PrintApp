@@ -17,7 +17,6 @@ const AuthContext = createContext<AuthData>({
 });
 
 
-
 interface Props {
   children: React.ReactNode;
 }
