@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons'; // <--- Asegúrate de importar esto
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -17,7 +18,7 @@ import { useTheme } from '../../providers/ThemeProvider';
 
 export default function SignInScreen() {
   const { theme } = useTheme();
-  const { showAlert } = useAlert(); // 
+  const { showAlert } = useAlert();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +26,6 @@ export default function SignInScreen() {
 
   async function handleSignIn() {
       if (!email || !password) {
-        
         showAlert('Error', 'Por favor ingresa tu email y contraseña.');
         return;
       }
@@ -39,10 +39,8 @@ export default function SignInScreen() {
       setLoading(false);
   
       if (error) {
-       
         showAlert('Error de inicio de sesión', error.message);
       }
-      // Si no hay error, el AuthProvider detectará la sesión y redirigirá automáticamente
   }
 
   return (
@@ -141,6 +139,15 @@ export default function SignInScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* --- FOOTER COPYRIGHT --- */}
+        <View style={styles.copyright}>
+            <Ionicons name="logo-github" size={16} color={theme.colors.textSecondary} />
+            <Text style={[styles.copyrightText, { color: theme.colors.textSecondary }]}>
+                © {new Date().getFullYear()} Afleco
+            </Text>
+        </View>
+
       </View>
     </KeyboardAvoidingView>
   );
@@ -217,9 +224,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 32,
-    paddingBottom: 32,
+    paddingBottom: 16, // Reducido un poco para dejar espacio al copyright
   },
   footerText: {
     fontSize: 14,
   },
+  
+  copyright: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+    opacity: 0.6
+  },
+  copyrightText: {
+    fontSize: 12,
+    marginLeft: 6
+  }
 });

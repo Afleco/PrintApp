@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -30,6 +31,10 @@ export default function HistoryScreen() {
     setLoading(false);
   }
 
+  const handleOpenDocument = (url: string) => {
+    if (url) Linking.openURL(url);
+  };
+
   const renderItem = ({ item }: { item: any }) => (
     <View style={[styles.card, { backgroundColor: theme.colors.cardBackground }]}>
       <View style={styles.row}>
@@ -56,6 +61,17 @@ export default function HistoryScreen() {
             {item.n_copias} copias - {item.a_color ? 'Color' : 'B/N'}
          </Text>
       </View>
+
+      {/* Botón para ver archivo en historial */}
+      {item.archivo_url && (
+          <TouchableOpacity 
+            style={[styles.miniButton, { backgroundColor: theme.colors.backgroundSecondary }]}
+            onPress={() => handleOpenDocument(item.archivo_url)}
+          >
+             <Ionicons name="eye-outline" size={16} color={theme.colors.textPrimary} />
+             <Text style={{fontSize: 12, color: theme.colors.textPrimary, marginLeft: 4}}>Ver Archivo</Text>
+          </TouchableOpacity>
+      )}
 
       <Text style={[styles.date, { color: theme.colors.textSecondary }]}>
          Fecha: {new Date(item.created_at).toLocaleDateString()}
@@ -93,5 +109,6 @@ const styles = StyleSheet.create({
   label: { fontSize: 14 },
   value: { fontSize: 14, fontWeight: '600' },
   divider: { height: 1, backgroundColor: '#eee', marginVertical: 8 },
-  date: { fontSize: 12, marginTop: 8, fontStyle: 'italic', alignSelf: 'flex-end' }
+  date: { fontSize: 12, marginTop: 8, fontStyle: 'italic', alignSelf: 'flex-end' },
+  miniButton: { flexDirection: 'row', alignSelf: 'flex-start', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16, marginTop: 8, alignItems: 'center' }
 });

@@ -15,17 +15,12 @@ interface DashboardProps {
 export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
   const { theme, toggleTheme, isDarkMode } = useTheme();
 
-  // Función para navegar usando Expo Router
   const navigateTo = (screen: string) => {
-    console.log("Intentando navegar a:", screen);
-    // @ts-ignore - Ignoramos check de tipos estricto para rutas dinámicas
+    // @ts-ignore
     router.push(screen);
   };
-
   
   const userRole = userProfile?.rol || '';
-  
-
   const isClient = userRole === 'Cliente';
   const isAdmin = userRole === 'Administrador';
 
@@ -33,6 +28,7 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
     <ScrollView 
       style={[styles.container, { backgroundColor: theme.colors.background }]} 
       contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
     >
       
       {/* HEADER */}
@@ -91,7 +87,6 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
         {/* --- OPCIONES DE ADMINISTRADOR --- */}
         {isAdmin && (
           <>
-            {/* NUEVO BOTÓN: PEDIDOS EN ESPERA */}
             <TouchableOpacity 
               style={[styles.actionCard, { backgroundColor: theme.colors.accent }]}
               onPress={() => navigateTo('/(admin)/pending')}
@@ -142,15 +137,23 @@ export default function Dashboard({ userProfile, onSignOut }: DashboardProps) {
             </TouchableOpacity>
           </>
         )}
-
       </View>
+
+      {/* --- FOOTER COPYRIGHT --- */}
+      <View style={styles.copyright}>
+        <Ionicons name="logo-github" size={16} color={theme.colors.textSecondary} />
+        <Text style={[styles.copyrightText, { color: theme.colors.textSecondary }]}>
+            © {new Date().getFullYear()} Afleco
+        </Text>
+      </View>
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  contentContainer: { padding: 24, paddingTop: 48 },
+  contentContainer: { padding: 24, paddingTop: 48, paddingBottom: 40 }, // paddingBottom extra para el footer
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -211,4 +214,16 @@ const styles = StyleSheet.create({
   actionText: { fontSize: 18, fontWeight: 'bold', color: 'white', marginTop: 8 },
   actionTextLarge: { fontSize: 22, fontWeight: 'bold', color: 'white', marginTop: 8 },
   actionSubtext: { fontSize: 14, color: 'rgba(255, 255, 255, 0.9)', marginTop: 4 },
+  
+  copyright: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 40,
+    opacity: 0.6,
+  },
+  copyrightText: {
+    fontSize: 12,
+    marginLeft: 6
+  }
 });

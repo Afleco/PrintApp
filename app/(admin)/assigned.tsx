@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -49,8 +50,13 @@ export default function AssignedOrdersScreen() {
     setLoading(false);
   }
 
+  // --- ABRIR DOCUMENTO ---
+  const handleOpenDocument = (url: string) => {
+    if (url) Linking.openURL(url);
+    else showAlert('Aviso', 'No hay documento disponible.');
+  };
+
   async function handleCompleteOrder(orderId: number) {
-    
     showAlert(
         "Completar Pedido",
         "¿Confirmas que este pedido ha sido impreso y entregado?",
@@ -61,7 +67,7 @@ export default function AssignedOrdersScreen() {
                 onPress: async () => {
                     const { error } = await supabase
                       .from('Pedidos')
-                      .update({ estado: 'Terminado' })
+                      .update({ estado: 'Terminado', finished_at: new Date() }) // Guardamos fecha fin
                       .eq('id', orderId);
 
                     if (!error) {
@@ -86,18 +92,34 @@ export default function AssignedOrdersScreen() {
           <Text style={{color: theme.colors.textSecondary}}>•</Text>
           <Text style={{color: theme.colors.textSecondary}}>Color: {item.a_color ? 'Sí' : 'No'}</Text>
       </View>
+      
+      <Text style={[styles.desc, { color: theme.colors.textPrimary }]} numberOfLines={3}>
+        Nota: {item.descripcion}
+      </Text>
 
       <Text style={[styles.date, { color: theme.colors.textSecondary }]}>
         Fecha: {new Date(item.created_at).toLocaleDateString()}
       </Text>
       
-      <TouchableOpacity 
-        style={[styles.button, { backgroundColor: theme.colors.primary }]}
-        onPress={() => handleCompleteOrder(item.id)}
-      >
-        <Ionicons name="checkmark-circle" size={24} color="white" style={{marginRight: 8}}/>
-        <Text style={styles.buttonText}>Marcar Completado</Text>
-      </TouchableOpacity>
+      <View style={styles.actionRow}>
+        {/* BOTÓN VER DOCUMENTO */}
+        <TouchableOpacity 
+            style={[styles.docButton, { borderColor: theme.colors.secondary }]}
+            onPress={() => handleOpenDocument(item.archivo_url)}
+        >
+            <Ionicons name="cloud-download-outline" size={20} color={theme.colors.secondary} />
+            <Text style={{ color: theme.colors.secondary, marginLeft: 6, fontWeight: '600' }}>Descargar</Text>
+        </TouchableOpacity>
+
+        {/* BOTÓN COMPLETAR */}
+        <TouchableOpacity 
+            style={[styles.mainButton, { backgroundColor: theme.colors.primary }]}
+            onPress={() => handleCompleteOrder(item.id)}
+        >
+            <Ionicons name="checkmark-circle" size={20} color="white" />
+            <Text style={styles.mainButtonText}>Completar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -133,7 +155,11 @@ const styles = StyleSheet.create({
   card: { padding: 16, borderRadius: 12, marginBottom: 12, elevation: 2 },
   clientName: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
   detailsRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  desc: { fontSize: 14, marginBottom: 12, fontStyle: 'italic' },
   date: { fontSize: 12, marginBottom: 12 },
-  button: { flexDirection: 'row', padding: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { color: 'white', fontWeight: 'bold' },
+  
+  actionRow: { flexDirection: 'row', gap: 10 },
+  docButton: { flex: 1, flexDirection: 'row', padding: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  mainButton: { flex: 1, flexDirection: 'row', padding: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  mainButtonText: { color: 'white', fontWeight: 'bold', marginLeft: 8 },
 });

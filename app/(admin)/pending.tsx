@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,7 +9,7 @@ import { useTheme } from '../../providers/ThemeProvider';
 
 export default function PendingOrdersScreen() {
   const { theme } = useTheme();
-  const { showAlert } = useAlert(); 
+  const { showAlert } = useAlert();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,12 +26,27 @@ export default function PendingOrdersScreen() {
 
     if (error) {
       console.error(error);
-      showAlert('Error', 'No se pudieron cargar los pedidos'); 
+      showAlert('Error', 'No se pudieron cargar los pedidos');
     } else {
       setOrders(data || []);
     }
     setLoading(false);
   }
+
+  // --- FUNCIÓN PARA ABRIR EL DOCUMENTO ---
+  const handleOpenDocument = async (url: string) => {
+    if (!url) {
+        showAlert('Error', 'Este pedido no tiene documento adjunto.');
+        return;
+    }
+    // Abre el navegador/visor del sistema
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+        Linking.openURL(url);
+    } else {
+        showAlert('Error', 'No se puede abrir este tipo de enlace.');
+    }
+  };
 
   async function handleAssignOrder(orderId: number) {
     const { data: { user } } = await supabase.auth.getUser();
@@ -43,7 +59,7 @@ export default function PendingOrdersScreen() {
         .single();
     
     if (!userData) {
-        showAlert("Error", "Usuario no encontrado."); 
+        showAlert("Error", "Usuario no encontrado.");
         return;
     }
 
@@ -56,7 +72,7 @@ export default function PendingOrdersScreen() {
       .eq('id', orderId);
 
     if (error) {
-      showAlert('Error', error.message); 
+      showAlert('Error', error.message);
     } else {
       showAlert('¡Asignado!', 'El pedido está ahora en "Pedidos Asignados"');
       fetchPendingOrders();
@@ -79,18 +95,35 @@ export default function PendingOrdersScreen() {
           <Text style={{color: theme.colors.textSecondary}}>•</Text>
           <Text style={{color: theme.colors.textSecondary}}>Color: {item.a_color ? 'Sí' : 'No'}</Text>
       </View>
+      
+      {/* Descripción corta */}
+      <Text style={[styles.desc, { color: theme.colors.textPrimary }]} numberOfLines={2}>
+        {item.descripcion}
+      </Text>
 
       <Text style={[styles.date, { color: theme.colors.textSecondary }]}>
         Fecha: {new Date(item.created_at).toLocaleDateString()}
       </Text>
 
-      <TouchableOpacity 
-        style={[styles.button, { backgroundColor: theme.colors.accent }]}
-        onPress={() => handleAssignOrder(item.id)}
-      >
-        <Ionicons name="person-add" size={20} color="white" style={{marginRight: 8}}/>
-        <Text style={styles.buttonText}>Asignarme este pedido</Text>
-      </TouchableOpacity>
+      <View style={styles.actionRow}>
+        {/* BOTÓN VER DOCUMENTO */}
+        <TouchableOpacity 
+            style={[styles.docButton, { borderColor: theme.colors.primary }]}
+            onPress={() => handleOpenDocument(item.archivo_url)}
+        >
+            <Ionicons name="document-text-outline" size={20} color={theme.colors.primary} />
+            <Text style={{ color: theme.colors.primary, marginLeft: 6, fontWeight: '600' }}>Ver Archivo</Text>
+        </TouchableOpacity>
+
+        {/* BOTÓN ASIGNAR */}
+        <TouchableOpacity 
+            style={[styles.mainButton, { backgroundColor: theme.colors.accent }]}
+            onPress={() => handleAssignOrder(item.id)}
+        >
+            <Ionicons name="person-add" size={20} color="white" />
+            <Text style={styles.mainButtonText}>Asignarme</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -125,11 +158,15 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: 'bold', marginLeft: 16 },
   card: { padding: 16, borderRadius: 12, marginBottom: 12, elevation: 2 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  clientName: { fontSize: 16, fontWeight: 'bold' },
+  clientName: { fontSize: 16, fontWeight: 'bold', flex: 1 },
   detailsRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  desc: { fontSize: 14, marginBottom: 8, fontStyle: 'italic' },
   date: { fontSize: 12, marginBottom: 12 },
   badge: { backgroundColor: '#F7941D', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
   badgeText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
-  button: { flexDirection: 'row', padding: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { color: 'white', fontWeight: 'bold' },
+  
+  actionRow: { flexDirection: 'row', gap: 10 },
+  docButton: { flex: 1, flexDirection: 'row', padding: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  mainButton: { flex: 1, flexDirection: 'row', padding: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  mainButtonText: { color: 'white', fontWeight: 'bold', marginLeft: 8 },
 });
