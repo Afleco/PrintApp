@@ -12,6 +12,22 @@ The app features role-based access control (RBAC), real-time status updates, fil
 
 ---
 
+## 📱 Live Demo
+
+You can try the live version of the app directly in your browser here:
+👉 **[https://printapp-afleco.vercel.app](https://printapp-afleco.vercel.app)**
+
+Use the following credentials to explore the different roles:
+
+| Role | Email | Password | Description |
+| :--- | :--- | :--- | :--- |
+| **🛡️ Admin** | `admin@admin.com` | `admin` | Access the dashboard, manage queue, and process orders. |
+| **👤 Client** | `test@test.com` | `admin` | Create orders, upload files, and track status. |
+
+> **Note:** For security and demonstration purposes, new user registration is disabled and there is a limit on the number of active orders per account.
+
+---
+
 ## ✨ Key Features
 
 ### 👤 For Clients
